@@ -1,0 +1,4 @@
+.venv/
+storage_state.json
+.env
+__pycache__/
