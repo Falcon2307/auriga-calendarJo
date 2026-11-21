@@ -1,49 +1,31 @@
-from playwright.sync_api import sync_playwright
+from dotenv import load_dotenv
+import os
 from icalendar import Calendar, Event
 from datetime import datetime, timedelta
 import requests
+load_dotenv()
+
+TOKEN_URL = os.getenv("TOKEN_URL")
+CLIENT_ID = os.getenv("CLIENT_ID")
+REFRESH_TOKEN = os.getenv("REFRESH_TOKEN")
 
 
 API_URL = "https://isaesupaero-production.np-auriga.nfrance.net/api/plannings/me"
 
-
 def get_token():
+    response = requests.post(
+        TOKEN_URL,
+        data={
+            "grant_type": "refresh_token",
+            "client_id": CLIENT_ID,
+            "refresh_token": REFRESH_TOKEN,
+        },
+        timeout=30,
+    )
 
-    with sync_playwright() as p:
+    response.raise_for_status()
 
-        browser = p.chromium.launch(headless=True)
-
-        context = browser.new_context(
-            storage_state="storage_state.json"
-        )
-
-        page = context.new_page()
-
-        token_holder = {}
-
-        def intercept(request):
-
-            auth = request.headers.get("authorization")
-
-            if auth and auth.startswith("Bearer "):
-                token_holder["token"] = auth[7:]
-
-        page.on("request", intercept)
-
-        page.goto(
-            "https://isaesupaero-production.np-auriga.nfrance.net"
-        )
-
-        page.wait_for_timeout(5000)
-
-        browser.close()
-
-    if "token" not in token_holder:
-        raise Exception(
-            "No bearer token found. Run login.py again."
-        )
-
-    return token_holder["token"]
+    return response.json()["access_token"]
 
 
 def get_schedule(token):
