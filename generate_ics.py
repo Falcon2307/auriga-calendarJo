@@ -23,6 +23,9 @@ def get_token():
         timeout=30,
     )
 
+    print("STATUS:", response.status_code)
+    print("BODY:", response.text)
+
     response.raise_for_status()
 
     return response.json()["access_token"]
