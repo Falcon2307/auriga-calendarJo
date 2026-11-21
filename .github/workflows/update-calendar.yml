@@ -22,17 +22,15 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install playwright
-          playwright install chromium
 
       - name: Create .env
         run: |
-          echo "USERNAME=${{ secrets.AURIGA_USERNAME }}" > .env
-          echo "PASSWORD=${{ secrets.AURIGA_PASSWORD }}" >> .env
+          echo "TOKEN_URL=${{ secrets.TOKEN_URL }}" > .env
+          echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
+          echo "REFRESH_TOKEN=${{ secrets.REFRESH_TOKEN }}" >> .env
 
       - name: Generate calendar
         run: |
-          python login.py
           python generate_ics.py
 
       - name: Commit calendar
