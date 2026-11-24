@@ -39,7 +39,9 @@ with sync_playwright() as p:
     print("Clicking SSO button...")
     page.get_by_text("SSO ISAE-SUPAERO").click()
 
-    page.wait_for_load_state("networkidle")
+    page.wait_for_timeout(5000)
+    print("Current URL:", page.url)
+    page.screenshot(path="debug.png")
 
     print("Entering username...")
     page.locator("#username").fill(USERNAME)
