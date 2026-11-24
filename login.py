@@ -41,8 +41,9 @@ with sync_playwright() as p:
 
     page.wait_for_timeout(5000)
     print("Current URL:", page.url)
-    page.screenshot(path="debug.png")
 
+    print("Username field count:", page.locator("#username").count())
+    print("Password field count:", page.locator("#password").count())
     print("Entering username...")
     page.locator("#username").fill(USERNAME)
 
