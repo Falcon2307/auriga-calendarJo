@@ -1,72 +1,20 @@
-from dotenv import load_dotenv
-import os
+import json
 from icalendar import Calendar, Event
-from datetime import datetime, timedelta
-import requests
-load_dotenv()
-
-TOKEN_URL = os.getenv("TOKEN_URL")
-CLIENT_ID = os.getenv("CLIENT_ID")
-REFRESH_TOKEN = os.getenv("REFRESH_TOKEN")
+from datetime import datetime
 
 
-API_URL = "https://isaesupaero-production.np-auriga.nfrance.net/api/plannings/me"
-
-def get_token():
-    response = requests.post(
-        TOKEN_URL,
-        data={
-            "grant_type": "refresh_token",
-            "client_id": CLIENT_ID,
-            "refresh_token": REFRESH_TOKEN,
-        },
-        timeout=30,
-    )
-
-    print("STATUS:", response.status_code)
-    print("BODY:", response.text)
-
-    response.raise_for_status()
-
-    return response.json()["access_token"]
-
-
-def get_schedule(token):
-
-    today = datetime.now().date()
-
-    end_date = today + timedelta(days=180)
-
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "x-scope": "frontend",
-        "accept": "application/json"
-    }
-
-    response = requests.get(
-        API_URL,
-        params={
-            "startDate": today.isoformat(),
-            "endDate": end_date.isoformat(),
-        },
-        headers=headers,
-        timeout=30,
-    )
-
-    response.raise_for_status()
-
-    return response.json()
+def get_schedule():
+    with open("planning_full.json", "r", encoding="utf-8") as f:
+        return json.load(f)
 
 
 def build_calendar(data):
-
     cal = Calendar()
 
     cal.add("prodid", "-//ISAE SUPAERO AURIGA//")
     cal.add("version", "2.0")
 
     for item in data["interventions"]:
-
         event = Event()
 
         title = "Course"
@@ -76,7 +24,7 @@ def build_calendar(data):
                 item["interventionPedagogicalUnits"][0]
                 ["pedagogicalUnit"]["caption"]["en"]
             )
-        except:
+        except Exception:
             pass
 
         description = item.get("description", "")
@@ -88,7 +36,7 @@ def build_calendar(data):
                 item["interventionResources"][0]
                 ["resource"]["caption"]["fr"]
             )
-        except:
+        except Exception:
             pass
 
         instructors = []
@@ -101,14 +49,13 @@ def build_calendar(data):
                     f'{person["currentFirstName"]} '
                     f'{person["currentLastName"]}'
                 )
-        except:
+
+        except Exception:
             pass
 
         if instructors:
-
-            description = (
-                description
-                + "\n\nInstructor(s): "
+            description += (
+                "\n\nInstructor(s): "
                 + ", ".join(instructors)
             )
 
@@ -143,14 +90,9 @@ def build_calendar(data):
 
 
 def main():
+    print("Reading planning.json...")
 
-    print("Getting token...")
-
-    token = get_token()
-
-    print("Getting schedule...")
-
-    data = get_schedule(token)
+    data = get_schedule()
 
     print(
         f'Found {len(data["interventions"])} events'

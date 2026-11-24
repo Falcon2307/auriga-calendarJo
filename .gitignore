@@ -1,4 +1,7 @@
 .venv/
 storage_state.json
 .env
+planning.json
+planning_full.json
+calendar.ics
 __pycache__/
