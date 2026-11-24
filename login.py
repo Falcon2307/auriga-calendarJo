@@ -50,7 +50,6 @@ with sync_playwright() as p:
     print("Clicking login button...")
     page.get_by_role("button", name="Se connecter").click()
 
-    page.wait_for_load_state("networkidle")
     page.wait_for_timeout(5000)
 
     print("Opening Mon planning...")
