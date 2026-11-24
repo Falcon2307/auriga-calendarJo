@@ -22,13 +22,21 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install icalendar python-dotenv
+          python -m playwright install chromium
+          python -m playwright install-deps chromium
 
       - name: Create .env
         run: |
-          echo "TOKEN_URL=${{ secrets.TOKEN_URL }}" > .env
-          echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
-          echo "REFRESH_TOKEN=${{ secrets.REFRESH_TOKEN }}" >> .env
+          echo "AURIGA_USERNAME=${{ secrets.AURIGA_USERNAME }}" > .env
+          echo "AURIGA_PASSWORD=${{ secrets.AURIGA_PASSWORD }}" >> .env
+
+      - name: Fetch planning
+        run: |
+          python login.py
+      
+      - name: Check generated files
+        run: |
+          ls -lah
 
       - name: Generate calendar
         run: |

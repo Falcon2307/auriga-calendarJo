@@ -13,7 +13,7 @@ TOKEN = None
 
 
 with sync_playwright() as p:
-    browser = p.chromium.launch(headless=False)
+    browser = p.chromium.launch(headless=True)
     page = browser.new_page()
 
     def log_request(request):
@@ -100,7 +100,5 @@ with sync_playwright() as p:
         f.write(response.text)
 
     print("planning_full.json saved")
-
-    input("Press ENTER to close...")
 
     browser.close()
